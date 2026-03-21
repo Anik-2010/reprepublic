@@ -5,20 +5,20 @@ const cors       = require('cors');
 const nodemailer = require('nodemailer');
 const rateLimit  = require('express-rate-limit');
 const path       = require('path');
-
+ 
 const app  = express();
 const PORT = process.env.PORT || 8080;
-
+ 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
+ 
 const emailLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, max: 5,
   keyGenerator: (req) => req.body.email || req.ip,
   message: { success: false, message: 'Too many requests. Please wait.' }
 });
-
+ 
 // Brevo SMTP transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS
   }
 });
-
+ 
 async function sendEmail(to, subject, html) {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.log('[DEV] Email skipped - no credentials set');
@@ -49,7 +49,7 @@ async function sendEmail(to, subject, html) {
     return { success: false };
   }
 }
-
+ 
 app.post('/api/register', emailLimiter, async (req, res) => {
   const { name, phone, email } = req.body;
   if (!name || !phone || !email) return res.status(400).json({ success: false });
@@ -69,7 +69,7 @@ app.post('/api/register', emailLimiter, async (req, res) => {
   );
   res.json({ success: true, emailSent: result.success });
 });
-
+ 
 app.post('/api/login', emailLimiter, async (req, res) => {
   const { name, phone, email } = req.body;
   if (!name || !phone || !email) return res.status(400).json({ success: false });
@@ -91,8 +91,9 @@ app.post('/api/login', emailLimiter, async (req, res) => {
   );
   res.json({ success: true, emailSent: result.success });
 });
-
+ 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'REP REPUBLIC' }));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
+ 
 app.listen(PORT, () => console.log(`REP REPUBLIC running on port ${PORT} | SMTP: ${process.env.SMTP_HOST || 'smtp-relay.brevo.com'}`));
+ 
