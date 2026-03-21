@@ -1,4 +1,4 @@
-// REP REPUBLIC — Backend Server (Nodemailer / Gmail)
+// REP REPUBLIC — Backend Server (Brevo SMTP)
 require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
@@ -19,18 +19,29 @@ const emailLimiter = rateLimit({
   message: { success: false, message: 'Too many requests. Please wait.' }
 });
 
+// Brevo SMTP transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
 });
 
 async function sendEmail(to, subject, html) {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.log('[DEV] Email skipped - no credentials set');
     return { success: true, dev: true };
   }
   try {
-    await transporter.sendMail({ from: `"REP REPUBLIC" <${process.env.EMAIL_USER}>`, to, subject, html });
+    await transporter.sendMail({
+      from: `"REP REPUBLIC" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      html
+    });
     console.log('Email sent to', to);
     return { success: true };
   } catch (err) {
@@ -53,7 +64,7 @@ app.post('/api/register', emailLimiter, async (req, res) => {
         <p style="margin:4px 0;"><strong>Phone:</strong> ${phone}</p>
         <p style="margin:4px 0;"><strong>Email:</strong> ${email}</p>
       </div>
-      <p style="color:#e8ff3a;font-size:1.2rem;font-weight:bold;">Time to grind! Let's go!</p>
+      <p style="color:#e8ff3a;font-size:1.2rem;font-weight:bold;">Time to grind! Lets go!</p>
     </div>`
   );
   res.json({ success: true, emailSent: result.success });
@@ -75,7 +86,7 @@ app.post('/api/login', emailLimiter, async (req, res) => {
         <p style="margin:4px 0;"><strong>Time:</strong> ${timeStr}</p>
         <p style="margin:4px 0;"><strong>Date:</strong> ${dateStr}</p>
       </div>
-      <p style="color:#e8ff3a;font-size:1.2rem;font-weight:bold;">Crush today's workout!</p>
+      <p style="color:#e8ff3a;font-size:1.2rem;font-weight:bold;">Crush todays workout!</p>
     </div>`
   );
   res.json({ success: true, emailSent: result.success });
@@ -84,4 +95,4 @@ app.post('/api/login', emailLimiter, async (req, res) => {
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'REP REPUBLIC' }));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, () => console.log(`REP REPUBLIC running on port ${PORT} | Email: ${process.env.EMAIL_USER || 'NOT SET'}`));
+app.listen(PORT, () => console.log(`REP REPUBLIC running on port ${PORT} | SMTP: ${process.env.SMTP_HOST || 'smtp-relay.brevo.com'}`));
