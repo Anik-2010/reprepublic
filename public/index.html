@@ -17,7 +17,6 @@ body {
   height: 100vh;
 }
 
-/* LOGIN SCREEN */
 #loginScreen {
   background: #1a1a1a;
   padding: 30px;
@@ -28,22 +27,20 @@ body {
 
 #loginScreen h2 {
   text-align: center;
-  margin-bottom: 20px;
 }
 
 label {
-  display: block;
   margin-top: 10px;
-  color: white;
+  display: block;
 }
 
 input {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
+  background: #2a2a2a;
   border: none;
   border-radius: 6px;
-  background: #2a2a2a;
   color: white;
 }
 
@@ -57,46 +54,28 @@ button {
   font-weight: bold;
   cursor: pointer;
 }
-
-button:hover {
-  background: #00cc6a;
-}
-
-/* MAIN APP */
-#app {
-  display: none;
-  text-align: center;
-}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen">
   <h2>REP REPUBLIC 💪</h2>
 
   <label>Your Name</label>
-  <input type="text" id="name" placeholder="Your Name">
+  <input type="text" id="name">
 
   <label>Phone Number</label>
-  <input type="text" id="phone" placeholder="Phone Number">
+  <input type="text" id="phone">
 
   <label>Email Address</label>
-  <input type="email" id="email" placeholder="Email Address">
+  <input type="email" id="email">
 
   <button onclick="doLogin()">LET'S GRIND</button>
 </div>
 
-<!-- MAIN APP -->
-<div id="app">
-  <h1 id="welcomeText"></h1>
-  <p>You're logged in successfully 🔥</p>
-  <button onclick="logout()">Logout</button>
-</div>
-
 <script>
-function doLogin() {
+async function doLogin() {
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phone").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -106,36 +85,27 @@ function doLogin() {
     return;
   }
 
-  const user = {
-    name: name,
-    phone: phone,
-    email: email
-  };
+  try {
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, phone, email })
+    });
 
-  localStorage.setItem("rep_user", JSON.stringify(user));
+    const data = await res.json();
 
-  loadApp();
+    if (data.success) {
+      alert("Login successful! Check your email 📩");
+    } else {
+      alert("Email not sent ❌");
+    }
+
+  } catch (error) {
+    alert("Server error ❌");
+  }
 }
-
-function loadApp() {
-  const user = JSON.parse(localStorage.getItem("rep_user"));
-
-  if (!user) return;
-
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("app").style.display = "block";
-
-  document.getElementById("welcomeText").innerText =
-    "Welcome, " + user.name + " 💪";
-}
-
-function logout() {
-  localStorage.removeItem("rep_user");
-  location.reload();
-}
-
-// Auto login
-window.onload = loadApp;
 </script>
 
 </body>
