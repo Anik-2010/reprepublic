@@ -11,7 +11,7 @@ const rateLimit   = require('express-rate-limit');
 const path        = require('path');
 
 const app  = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // ── Middleware ──
 app.use(cors());
@@ -27,7 +27,7 @@ const smsLimiter = rateLimit({
 });
 
 // ═══════════════════════════════════════════════════
-//  FAST2SMS HELPER
+//  FAST2SMS HELPER — uses v3 Quick SMS (no DLT needed)
 // ═══════════════════════════════════════════════════
 async function sendSMS(phone, message) {
   const apiKey = process.env.FAST2SMS_API_KEY;
@@ -38,25 +38,26 @@ async function sendSMS(phone, message) {
   }
 
   try {
-    const response = await axios.post(
+    console.log(`📤 Sending SMS to ${phone}...`);
+
+    const response = await axios.get(
       'https://www.fast2sms.com/dev/bulkV2',
       {
-        route: 'q',           // transactional route
-        message: message,
-        language: 'english',
-        flash: 0,
-        numbers: phone,
-      },
-      {
-        headers: {
+        params: {
           authorization: apiKey,
-          'Content-Type': 'application/json',
-        },
+          route: 'v3',
+          message: message,
+          language: 'english',
+          flash: 0,
+          numbers: phone,
+        }
       }
     );
 
+    console.log('Fast2SMS response:', JSON.stringify(response.data));
+
     if (response.data.return === true) {
-      console.log(`✅ SMS sent to ${phone}`);
+      console.log(`✅ SMS sent successfully to ${phone}`);
       return { success: true };
     } else {
       console.error('❌ Fast2SMS error:', response.data);
@@ -64,6 +65,9 @@ async function sendSMS(phone, message) {
     }
   } catch (err) {
     console.error('❌ SMS request failed:', err.message);
+    if (err.response) {
+      console.error('Response data:', err.response.data);
+    }
     return { success: false, message: 'SMS service error' };
   }
 }
@@ -73,7 +77,6 @@ async function sendSMS(phone, message) {
 // ═══════════════════════════════════════════════════
 
 // ── POST /api/register ──
-// Called when a new user creates an account
 app.post('/api/register', smsLimiter, async (req, res) => {
   const { name, phone } = req.body;
 
@@ -85,22 +88,18 @@ app.post('/api/register', smsLimiter, async (req, res) => {
   }
 
   const message =
-    `Welcome to REP REPUBLIC, ${name}! 💪` +
-    ` Your account has been created successfully.` +
-    ` Time to grind — track every rep, own every day! 🏋️`;
+    `Welcome to REP REPUBLIC ${name}! Your account has been created successfully. Time to grind - track every rep, own every day!`;
 
   const result = await sendSMS(phone, message);
 
   if (result.success) {
     res.json({ success: true, message: 'Account created! Welcome SMS sent.' });
   } else {
-    // Still let them in, SMS is non-critical
     res.json({ success: true, smsFailed: true, message: 'Account created, but SMS could not be sent.' });
   }
 });
 
 // ── POST /api/login ──
-// Called when an existing user logs in
 app.post('/api/login', smsLimiter, async (req, res) => {
   const { name, phone } = req.body;
 
@@ -113,9 +112,7 @@ app.post('/api/login', smsLimiter, async (req, res) => {
   const dateStr = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
   const message =
-    `Hey ${name}! You've logged in to REP REPUBLIC 🔥` +
-    ` Login time: ${timeStr}, ${dateStr}.` +
-    ` Let's crush today's workout! 💪`;
+    `Hey ${name}! You have logged in to REP REPUBLIC. Login time: ${timeStr}, ${dateStr}. Lets crush today's workout!`;
 
   const result = await sendSMS(phone, message);
 
@@ -138,7 +135,7 @@ app.get('*', (req, res) => {
 
 // ── Start ──
 app.listen(PORT, () => {
-  console.log(`\n🏋️  REP REPUBLIC server running on port ${PORT}`);
+  console.log(`\n REP REPUBLIC server running on port ${PORT}`);
   console.log(`   Local:  http://localhost:${PORT}`);
-  console.log(`   SMS:    ${process.env.FAST2SMS_API_KEY && process.env.FAST2SMS_API_KEY !== 'your_fast2sms_api_key_here' ? '✅ Fast2SMS configured' : '⚠️  Dev mode (no SMS key)'}\n`);
+  console.log(`   SMS:    ${process.env.FAST2SMS_API_KEY && process.env.FAST2SMS_API_KEY !== 'your_fast2sms_api_key_here' ? 'Fast2SMS configured' : 'Dev mode (no SMS key)'}\n`);
 });
