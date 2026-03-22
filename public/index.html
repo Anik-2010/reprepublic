@@ -323,6 +323,111 @@
   .user-name-badge { font-size:.72rem; color:var(--muted); letter-spacing:.5px; }
   .user-name-badge span { color:var(--accent); font-weight:600; }
 
+
+  /* ── EXERCISE TIPS ── */
+  .tips-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: .3rem .7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-top: .75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+  }
+  .tips-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .tips-modal {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+    padding: 1rem;
+  }
+  .tips-modal.open { opacity: 1; pointer-events: all; }
+
+  .tips-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: min(460px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .tips-modal.open .tips-card { transform: translateY(0); }
+
+  .tips-ex-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: .25rem;
+  }
+  .tips-muscle-tag {
+    font-size: .6rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: block;
+  }
+
+  .tips-section { margin-bottom: 1.2rem; }
+  .tips-section-title {
+    font-size: .65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--done);
+    margin-bottom: .6rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .tips-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+  .tips-section-title.warn { color: var(--accent2); }
+
+  .tips-list { list-style: none; padding: 0; }
+  .tips-list li {
+    font-size: .82rem;
+    color: var(--text);
+    padding: .4rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    line-height: 1.5;
+  }
+  .tips-list li:last-child { border-bottom: none; }
+  .tips-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+  .tips-section-title.warn + .tips-list li::before { content: '✗'; color: var(--accent2); }
+
+  .tips-close {
+    width: 100%;
+    margin-top: 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem;
+    border-radius: 8px;
+    padding: .7rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tips-close:hover { border-color: var(--accent); color: var(--accent); }
   @media(max-width:640px){
     header{padding:0 1rem;} #trackerMain,#calendarPage{padding:1.2rem 1rem;}
     .day-title{font-size:2.4rem;} .cal-stats{grid-template-columns:repeat(2,1fr);}
@@ -428,6 +533,27 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- TIPS MODAL -->
+<div class="tips-modal" id="tipsModal" onclick="if(event.target===this)closeTips()">
+  <div class="tips-card">
+    <div class="tips-ex-name" id="tipsExName"></div>
+    <span class="tips-muscle-tag" id="tipsMuscleTag"></span>
+    <div class="tips-section">
+      <div class="tips-section-title">Starting Position</div>
+      <ul class="tips-list" id="tipsStartList"></ul>
+    </div>
+    <div class="tips-section">
+      <div class="tips-section-title">Key Form Tips</div>
+      <ul class="tips-list" id="tipsTipsList"></ul>
+    </div>
+    <div class="tips-section">
+      <div class="tips-section-title warn">Common Mistakes</div>
+      <ul class="tips-list" id="tipsAvoidList"></ul>
+    </div>
+    <button class="tips-close" onclick="closeTips()">Got it &#10003;</button>
+  </div>
+</div>
+
 <script>
 /* ──────────── DATA ──────────── */
 const PLAN = {
@@ -447,6 +573,135 @@ const EXERCISES = {
   Legs:      ['Dumbbell Squats','Dumbbell Lunges','Dumbbell Romanian Deadlift'],
   Shoulders: ['Dumbbell Shoulder Press','Lateral Raises','Rear Delt Raises (Bent-Over)']
 };
+
+/* ── EXERCISE TIPS DATA ── */
+const EXERCISE_TIPS = {
+  'Dumbbell Floor Press': {
+    muscle: 'Chest',
+    start: ['Lie flat on the floor with knees bent', 'Hold a dumbbell in each hand at chest level', 'Keep elbows at 45 degrees from your body'],
+    tips: ['Press the dumbbells up until arms are fully extended', 'Squeeze your chest at the top', 'Lower slowly until elbows touch the floor', 'Keep your back flat on the ground throughout'],
+    avoid: ['Flaring elbows out too wide', 'Bouncing elbows off the floor', 'Holding your breath — exhale on the way up']
+  },
+  'Dumbbell Floor Fly': {
+    muscle: 'Chest',
+    start: ['Lie flat on the floor, dumbbells above chest', 'Palms facing each other, slight bend in elbows', 'Keep core tight and back flat'],
+    tips: ['Lower dumbbells out to sides in a wide arc', 'Stop when elbows lightly touch the floor', 'Squeeze chest to bring dumbbells back up', 'Move slowly — this is a stretch movement'],
+    avoid: ['Straightening arms completely (keep soft bend)', 'Going too heavy — this is a isolation move', 'Rushing the movement']
+  },
+  'Push-Ups': {
+    muscle: 'Chest',
+    start: ['Place hands slightly wider than shoulder width', 'Body in a straight line from head to heels', 'Look slightly forward, not straight down'],
+    tips: ['Lower chest to just above the floor', 'Keep elbows at 45 degrees, not flared out', 'Exhale as you push up', 'Squeeze chest and triceps at the top'],
+    avoid: ['Sagging hips or raising your bum', 'Flaring elbows out to 90 degrees', 'Partial range of motion — go all the way down']
+  },
+  'Overhead Dumbbell Extension': {
+    muscle: 'Triceps',
+    start: ['Stand or sit with one dumbbell held with both hands', 'Lift dumbbell overhead with arms fully extended', 'Keep elbows close to your head'],
+    tips: ['Lower the dumbbell behind your head by bending elbows', 'Keep upper arms still — only forearms move', 'Extend arms back up fully to complete the rep', 'Move in a controlled, slow manner'],
+    avoid: ['Letting elbows flare out to the sides', 'Using momentum to swing the weight up', 'Arching your lower back excessively']
+  },
+  'Dumbbell Triceps Kickback': {
+    muscle: 'Triceps',
+    start: ['Hinge forward at hips, back flat and parallel to floor', 'Hold dumbbell with upper arm parallel to ground', 'Keep elbow pinned to your side'],
+    tips: ['Extend forearm back until arm is fully straight', 'Squeeze triceps hard at the top', 'Lower slowly back to starting position', 'Keep upper arm perfectly still throughout'],
+    avoid: ['Swinging the weight with momentum', 'Letting upper arm drop during the movement', 'Going too heavy — form breaks down fast']
+  },
+  'Close-Grip Push-Ups': {
+    muscle: 'Triceps',
+    start: ['Place hands close together, thumbs almost touching', 'Body in straight line, core tight', 'Elbows stay close to your sides'],
+    tips: ['Lower chest toward your hands slowly', 'Keep elbows pointing backward, not outward', 'Push up explosively and squeeze triceps', 'Full range of motion — chest nearly touches floor'],
+    avoid: ['Placing hands too close (causes wrist pain)', 'Flaring elbows outward', 'Sagging hips or raising your bum']
+  },
+  'One-Arm Dumbbell Row': {
+    muscle: 'Back',
+    start: ['Place one knee and hand on a bench for support', 'Hold dumbbell with free hand, arm hanging straight', 'Keep back flat and parallel to the floor'],
+    tips: ['Pull dumbbell up toward your hip (not shoulder)', 'Lead with your elbow, not your hand', 'Squeeze your back at the top of the movement', 'Lower slowly and with full control'],
+    avoid: ['Rotating your torso to lift the weight', 'Pulling toward your shoulder instead of hip', 'Rounding your lower back']
+  },
+  'Bent-Over Dumbbell Row': {
+    muscle: 'Back',
+    start: ['Stand with feet hip-width apart, holding dumbbells', 'Hinge forward 45 degrees, keeping back flat', 'Let dumbbells hang in front of you'],
+    tips: ['Pull both dumbbells up toward your hips', 'Squeeze shoulder blades together at the top', 'Lower dumbbells slowly and with control', 'Keep core tight to protect your lower back'],
+    avoid: ['Rounding your back — keep it flat always', 'Using momentum to jerk the weights up', 'Standing too upright — maintain the hinge']
+  },
+  'Dumbbell Deadlift': {
+    muscle: 'Back',
+    start: ['Stand with feet hip-width apart, dumbbells in front of thighs', 'Slight bend in knees, back straight and chest up', 'Shoulders back, core braced tight'],
+    tips: ['Hinge at hips and lower dumbbells along legs', 'Keep dumbbells close to your body throughout', 'Drive hips forward to stand back up', 'Squeeze glutes and back at the top'],
+    avoid: ['Rounding your lower back at any point', 'Letting dumbbells drift away from your legs', 'Locking knees completely at the top']
+  },
+  'Dumbbell Bicep Curl': {
+    muscle: 'Biceps',
+    start: ['Stand tall, dumbbells at sides with palms facing forward', 'Keep elbows pinned close to your torso', 'Shoulders back and chest up'],
+    tips: ['Curl both dumbbells up to shoulder level', 'Squeeze your biceps hard at the top', 'Lower slowly — the negative is just as important', 'Keep upper arms completely still'],
+    avoid: ['Swinging your body to help lift the weight', 'Letting elbows drift forward or outward', 'Dropping the weight fast on the way down']
+  },
+  'Hammer Curl': {
+    muscle: 'Biceps',
+    start: ['Stand with dumbbells at sides, palms facing each other', 'Keep elbows tucked close to your torso', 'Neutral grip (thumbs pointing up)'],
+    tips: ['Curl dumbbells up while keeping palms facing inward', 'Squeeze at the top of each rep', 'Lower under control back to starting position', 'Works both biceps and forearms'],
+    avoid: ['Rotating your wrist during the movement', 'Swinging or using momentum', 'Rushing through reps — slow and controlled']
+  },
+  'Concentration Curl': {
+    muscle: 'Biceps',
+    start: ['Sit on a bench, legs spread apart', 'Rest elbow on inside of thigh, arm hanging down', 'Hold dumbbell with palm facing up'],
+    tips: ['Curl dumbbell up toward your shoulder', 'Keep upper arm completely still against your thigh', 'Squeeze bicep hard at the top', 'Lower slowly for maximum tension'],
+    avoid: ['Moving your elbow off your thigh', 'Using your body to help the movement', 'Going too heavy — this is a strict isolation exercise']
+  },
+  'Dumbbell Squats': {
+    muscle: 'Legs',
+    start: ['Stand feet shoulder-width apart, dumbbells at sides', 'Toes slightly turned out', 'Chest up, back straight, core tight'],
+    tips: ['Push hips back and bend knees to lower down', 'Go until thighs are parallel to the floor or lower', 'Keep knees tracking over toes throughout', 'Drive through heels to stand back up'],
+    avoid: ['Letting knees cave inward', 'Rounding your back or leaning too far forward', 'Rising onto your toes at the bottom']
+  },
+  'Dumbbell Lunges': {
+    muscle: 'Legs',
+    start: ['Stand tall with dumbbells at sides', 'Feet together, chest up and shoulders back', 'Core engaged throughout'],
+    tips: ['Step forward and lower back knee toward floor', 'Front thigh should be parallel to the floor', 'Keep front knee above ankle (not over toes)', 'Push through front heel to return to start'],
+    avoid: ['Letting front knee cave inward', 'Leaning forward with your torso', 'Taking too small a step forward']
+  },
+  'Dumbbell Romanian Deadlift': {
+    muscle: 'Legs',
+    start: ['Stand with feet hip-width apart, dumbbells in front of thighs', 'Slight bend in knees, back flat and chest up', 'Shoulders back, core braced'],
+    tips: ['Hinge at hips and lower dumbbells along legs', 'Feel a deep stretch in your hamstrings', 'Drive hips forward to return to standing', 'Keep back flat throughout the entire movement'],
+    avoid: ['Bending knees too much (this is not a squat)', 'Rounding your lower back', 'Letting dumbbells drift far from your legs']
+  },
+  'Dumbbell Shoulder Press': {
+    muscle: 'Shoulders',
+    start: ['Sit or stand with dumbbells at shoulder height', 'Palms facing forward, elbows at 90 degrees', 'Core tight and back straight'],
+    tips: ['Press dumbbells overhead until arms are fully extended', 'Bring dumbbells slightly together at the top', 'Lower slowly back to shoulder height', 'Keep core engaged to protect lower back'],
+    avoid: ['Arching your lower back to press the weight', 'Locking elbows aggressively at the top', 'Leaning back excessively during the press']
+  },
+  'Lateral Raises': {
+    muscle: 'Shoulders',
+    start: ['Stand with dumbbells at sides, palms facing inward', 'Slight bend in elbows, core tight', 'Keep shoulder blades slightly retracted'],
+    tips: ['Raise dumbbells out to sides up to shoulder level', 'Lead with your elbows, not your hands', 'Pause briefly at the top', 'Lower slowly — 3 seconds down'],
+    avoid: ['Swinging body to help raise the weight', 'Raising dumbbells above shoulder level', 'Using too heavy a weight — use lighter dumbbells']
+  },
+  'Rear Delt Raises (Bent-Over)': {
+    muscle: 'Shoulders',
+    start: ['Hinge forward at hips until torso is nearly parallel to floor', 'Hold dumbbells hanging below chest, palms facing each other', 'Keep back flat, slight bend in elbows'],
+    tips: ['Raise dumbbells out to sides in a wide arc', 'Lead with your elbows and squeeze rear delts at the top', 'Keep upper arms perpendicular to your torso', 'Lower slowly with full control'],
+    avoid: ['Raising torso to help lift the weight', 'Letting elbows bend too much during the raise', 'Going too heavy — this is a small muscle group']
+  }
+};
+
+function showTips(exName) {
+  const tips = EXERCISE_TIPS[exName];
+  if (!tips) return;
+  const modal = document.getElementById('tipsModal');
+  document.getElementById('tipsExName').textContent = exName;
+  document.getElementById('tipsMuscleTag').textContent = tips.muscle + ' Exercise';
+  document.getElementById('tipsStartList').innerHTML = tips.start.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('tipsTipsList').innerHTML = tips.tips.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('tipsAvoidList').innerHTML = tips.avoid.map(t => `<li>${t}</li>`).join('');
+  modal.classList.add('open');
+}
+
+function closeTips() {
+  document.getElementById('tipsModal').classList.remove('open');
+}
+
 const DAYS_ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_SHORT  = {monday:'MON',tuesday:'TUE',wednesday:'WED',thursday:'THU',friday:'FRI',saturday:'SAT',sunday:'SUN'};
 const MONTHS     = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -654,10 +909,12 @@ function buildTrackerMain(){
           <div class="set-tick${dn?' done':''}" onclick="toggleSet('${exEsc}',${s})">&#10003;</div>
         </div>`;
       }
+      const exEscTips = ex.replace(/'/g, "\\'");
       card.innerHTML=`<div class="exercise-top">
         <div class="exercise-name"><div class="check-icon">&#10003;</div>${ex}</div>
         <div class="sets-done-badge">${sd}/3 SETS</div>
-      </div><div class="sets-grid">${sHTML}</div>`;
+      </div><div class="sets-grid">${sHTML}</div>
+      <button class="tips-btn" onclick="showTips('${exEscTips}')">&#9432; How to do it</button>`;
       sec.appendChild(card);
     });
     main.appendChild(sec);
