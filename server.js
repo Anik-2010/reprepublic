@@ -5,20 +5,20 @@ const cors      = require('cors');
 const axios     = require('axios');
 const rateLimit = require('express-rate-limit');
 const path      = require('path');
-
+ 
 const app  = express();
 const PORT = process.env.PORT || 8080;
-
+ 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
+ 
 const emailLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, max: 5,
   keyGenerator: (req) => req.body.email || req.ip,
   message: { success: false, message: 'Too many requests. Please wait.' }
 });
-
+ 
 // Send email via Brevo HTTP API (no SMTP, no port blocking)
 async function sendEmail(to, subject, html) {
   if (!process.env.BREVO_API_KEY) {
@@ -48,7 +48,7 @@ async function sendEmail(to, subject, html) {
     return { success: false };
   }
 }
-
+ 
 app.post('/api/register', emailLimiter, async (req, res) => {
   const { name, phone, email } = req.body;
   if (!name || !phone || !email) return res.status(400).json({ success: false });
@@ -68,7 +68,7 @@ app.post('/api/register', emailLimiter, async (req, res) => {
   );
   res.json({ success: true, emailSent: result.success });
 });
-
+ 
 app.post('/api/login', emailLimiter, async (req, res) => {
   const { name, phone, email } = req.body;
   if (!name || !phone || !email) return res.status(400).json({ success: false });
@@ -90,8 +90,29 @@ app.post('/api/login', emailLimiter, async (req, res) => {
   );
   res.json({ success: true, emailSent: result.success });
 });
-
+ 
+ 
+// ── POST /api/help ── (user sends help message)
+app.post('/api/help', async (req, res) => {
+  const { name, email, subject, message } = req.body;
+  if (!name || !email || !subject || !message) return res.status(400).json({ success: false });
+ 
+  const result = await sendEmail(
+    'reprepublic.app@gmail.com',
+    `[HELP] ${subject} — from ${name}`,
+    `<div style="font-family:sans-serif;background:#f9f9f9;padding:30px;max-width:500px;margin:0 auto;border-radius:8px;">
+      <h2 style="color:#333;">New Help Request</h2>
+      <p><strong>From:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <hr style="margin:16px 0;">
+      <p style="white-space:pre-wrap;color:#444;">${message}</p>
+    </div>`
+  );
+  res.json({ success: true });
+});
+ 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'REP REPUBLIC' }));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
+ 
 app.listen(PORT, () => console.log(`REP REPUBLIC running on port ${PORT} | Brevo API: ${process.env.BREVO_API_KEY ? 'configured' : 'NOT SET'}`));
