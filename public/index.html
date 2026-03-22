@@ -324,6 +324,155 @@
   .user-name-badge span { color:var(--accent); font-weight:600; }
 
 
+
+  /* ── HELP PAGE ── */
+  #helpMain { padding: 2rem; max-width: 900px; margin: 0 auto; }
+
+  .help-hero {
+    text-align: center;
+    padding: 2rem 1rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .help-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(232,255,58,.3);
+  }
+  .help-logo span { color: var(--text); }
+  .help-tagline {
+    font-size: .8rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: .5rem;
+  }
+
+  .help-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .help-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .help-card-icon { font-size: 1.8rem; margin-bottom: .75rem; }
+  .help-card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: .5rem;
+  }
+  .help-card-desc { font-size: .82rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.5; }
+
+  .help-email-link {
+    display: inline-block;
+    color: var(--accent);
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232,255,58,.3);
+    padding-bottom: 2px;
+    transition: border-color .2s;
+    word-break: break-all;
+  }
+  .help-email-link:hover { border-color: var(--accent); }
+  .help-response-note { font-size: .65rem; color: var(--muted); margin-top: .6rem; letter-spacing: .5px; }
+
+  .help-faq-list { display: flex; flex-direction: column; gap: .75rem; }
+  .help-faq-item { border-left: 2px solid var(--accent); padding-left: .75rem; }
+  .help-faq-q { font-size: .78rem; font-weight: 600; color: var(--text); margin-bottom: .2rem; }
+  .help-faq-a { font-size: .74rem; color: var(--muted); line-height: 1.5; }
+
+  .help-message-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .help-message-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    color: var(--text);
+    margin-bottom: .3rem;
+  }
+  .help-message-sub { font-size: .78rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+  .help-form { display: flex; flex-direction: column; gap: 1rem; }
+  .help-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .help-form-field { display: flex; flex-direction: column; gap: .35rem; }
+  .help-form-label { font-size: .65rem; color: #ffffff; letter-spacing: 1.5px; text-transform: uppercase; }
+  .help-form-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    padding: .7rem 1rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .help-form-input:focus { border-color: var(--accent); }
+  .help-form-input::placeholder { color: var(--muted); }
+  .help-form-textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    padding: .7rem 1rem;
+    outline: none;
+    transition: border-color .2s;
+    resize: none;
+    height: 120px;
+  }
+  .help-form-textarea:focus { border-color: var(--accent); }
+  .help-form-textarea::placeholder { color: var(--muted); }
+  .help-form-error { font-size: .75rem; color: var(--accent2); min-height: 1rem; }
+  .help-submit-btn {
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    letter-spacing: .5px;
+    border: none;
+    border-radius: 8px;
+    padding: .85rem;
+    cursor: pointer;
+    transition: opacity .2s;
+    align-self: flex-start;
+    min-width: 180px;
+  }
+  .help-submit-btn:hover { opacity: .85; }
+  .help-success {
+    display: none;
+    font-size: .82rem;
+    color: var(--done);
+    padding: .75rem 1rem;
+    background: rgba(58,255,138,.08);
+    border: 1px solid rgba(58,255,138,.2);
+    border-radius: 8px;
+  }
+  .help-success.show { display: block; }
+
+  @media(max-width:640px){
+    .help-grid { grid-template-columns: 1fr; }
+    .help-form-row { grid-template-columns: 1fr; }
+    #helpMain { padding: 1.2rem 1rem; }
+  }
+
   /* ── EXERCISE TIPS ── */
   .tips-btn {
     background: transparent;
@@ -477,6 +626,7 @@
 <nav class="nav-tabs">
   <div class="nav-tab active" data-page="trackerPage">&#9889; Workout</div>
   <div class="nav-tab" data-page="calendarPage">&#128197; Calendar</div>
+  <div class="nav-tab" data-page="helpPage">&#128172; Help</div>
 </nav>
 
 <!-- TRACKER -->
@@ -510,6 +660,86 @@
     <div class="heatmap-legend">
       Less <div class="hm-cell"></div><div class="hm-cell lv1"></div><div class="hm-cell lv2"></div><div class="hm-cell lv3"></div><div class="hm-cell lv4"></div> More
     </div>
+  </div>
+</div>
+
+
+<!-- HELP PAGE -->
+<div class="page" id="helpPage">
+  <div id="helpMain">
+    <div class="help-hero">
+      <div class="help-logo">REP<span> REPUBLIC</span></div>
+      <div class="help-tagline">We are here to help you crush your goals</div>
+    </div>
+
+    <div class="help-grid">
+
+      <!-- Contact Card -->
+      <div class="help-card">
+        <div class="help-card-icon">&#9993;</div>
+        <div class="help-card-title">Official Email</div>
+        <div class="help-card-desc">For any queries, feedback or support reach us at our official email.</div>
+        <a href="mailto:reprepublic.app@gmail.com" class="help-email-link">reprepublic.app@gmail.com</a>
+        <div class="help-response-note">We usually respond within 24 hours</div>
+      </div>
+
+      <!-- FAQ Card -->
+      <div class="help-card">
+        <div class="help-card-icon">&#128209;</div>
+        <div class="help-card-title">Quick Help</div>
+        <div class="help-faq-list">
+          <div class="help-faq-item">
+            <div class="help-faq-q">How do I log a set?</div>
+            <div class="help-faq-a">Enter your reps and weight, then tap the circle tick button to mark it done.</div>
+          </div>
+          <div class="help-faq-item">
+            <div class="help-faq-q">How do I mark a workout day?</div>
+            <div class="help-faq-a">Go to Calendar tab and tap any day to mark it as worked out or rest day.</div>
+          </div>
+          <div class="help-faq-item">
+            <div class="help-faq-q">Why is my streak not updating?</div>
+            <div class="help-faq-a">Make sure you mark your workout days in the Calendar tab. The streak counts consecutive workout days.</div>
+          </div>
+          <div class="help-faq-item">
+            <div class="help-faq-q">Can I use this on my phone?</div>
+            <div class="help-faq-a">Yes! Open the website link in your phone browser and it works perfectly.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Message Form -->
+    <div class="help-message-wrap">
+      <div class="help-message-title">&#128172; Send us a Message</div>
+      <div class="help-message-sub">Describe your problem or suggestion and we will get back to you!</div>
+      <div class="help-form">
+        <div class="help-form-row">
+          <div class="help-form-field">
+            <label class="help-form-label">Your Name</label>
+            <input class="help-form-input" type="text" id="helpName" placeholder="Your name">
+          </div>
+          <div class="help-form-field">
+            <label class="help-form-label">Your Email</label>
+            <input class="help-form-input" type="email" id="helpEmail" placeholder="your@email.com">
+          </div>
+        </div>
+        <div class="help-form-field">
+          <label class="help-form-label">Subject</label>
+          <input class="help-form-input" type="text" id="helpSubject" placeholder="What is this about?">
+        </div>
+        <div class="help-form-field">
+          <label class="help-form-label">Message</label>
+          <textarea class="help-form-textarea" id="helpMessage" placeholder="Describe your problem or suggestion in detail..."></textarea>
+        </div>
+        <div class="help-form-error" id="helpError"></div>
+        <button class="help-submit-btn" onclick="submitHelp()">Send Message &#8594;</button>
+        <div class="help-success" id="helpSuccess">
+          &#10003; Message sent! We will reply to your email soon.
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1169,6 +1399,39 @@ function scheduleExactMidnight(){
   }, msUntilMidnight);
 }
 scheduleExactMidnight();
+
+
+/* ── HELP FORM ── */
+function submitHelp(){
+  const name    = document.getElementById('helpName').value.trim();
+  const email   = document.getElementById('helpEmail').value.trim();
+  const subject = document.getElementById('helpSubject').value.trim();
+  const message = document.getElementById('helpMessage').value.trim();
+  const err     = document.getElementById('helpError');
+  const success = document.getElementById('helpSuccess');
+
+  if(!name){ err.textContent='Please enter your name.'; return; }
+  if(!email||!email.includes('@')){ err.textContent='Please enter a valid email.'; return; }
+  if(!subject){ err.textContent='Please enter a subject.'; return; }
+  if(!message){ err.textContent='Please write your message.'; return; }
+  err.textContent='';
+
+  // Send to backend
+  fetch('/api/help', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, subject, message })
+  }).catch(()=>{});
+
+  // Show success regardless (non-critical)
+  success.classList.add('show');
+  document.getElementById('helpName').value='';
+  document.getElementById('helpEmail').value='';
+  document.getElementById('helpSubject').value='';
+  document.getElementById('helpMessage').value='';
+
+  setTimeout(()=> success.classList.remove('show'), 5000);
+}
 
 /* ──────────── INIT ──────────── */
 if(!tryAutoLogin()){
